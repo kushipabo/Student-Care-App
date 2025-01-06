@@ -1,100 +1,162 @@
-import { Image, ScrollView, StyleSheet, View } from "react-native";
-import {
-  Button,
-  Divider,
-  PaperProvider,
-  Text,
-  TextInput,
-} from "react-native-paper";
-import { students } from "../data/StudentsDb";
-import { useState } from "react";
 import { useNavigation } from "@react-navigation/native";
+import React, { useState } from "react";
+import {
+  Image,
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
+  StyleSheet,
+  Text,
+  TouchableWithoutFeedback,
+  View,
+} from "react-native";
+import { Button, Icon, TextInput } from "react-native-paper";
 
-export default function Login() {
-  const [name, setName] = useState("");
-  const [password, setPassword] = useState("");
-  const navigate = useNavigation();
+import { students } from "../assets/StudentsDb";
 
-  const handlebutton = () => {
-    // Checking for multiple students
-    const student = students.find(
-      (student) => student.username === name && student.password === password
-    );
+const Login = () => {
+  const [data, setData] = useState({
+    username: "",
+    password: "",
+  });
+  const [isSecure, setIsSecure] = useState(true);
+  const [error, setError] = useState("");
 
-    if (student) {
-      navigate.navigate("profile", { studentdata: student });
-    } else {
-      alert("Invalid username or password.");
+  const navigation = useNavigation();
+
+  const handleLogin = () => {
+    if (!data.username || !data.password) {
+      setError("Please fill all fields");
+      return;
     }
+
+    const student = students.find((s) => s.username === data.username);
+
+    if (!student || student.password !== data.password) {
+      setError("Please check your username and password");
+      return;
+    }
+
+    navigation.navigate("home", { student });
   };
 
   return (
-    <PaperProvider>
-      <ScrollView>
-        <View style={styles.header}>
-          <Text style={styles.headerText}>UoV Student Care</Text>
-        </View>
-        <View style={styles.imagecontain}>
-          <Image
-            source={require("../assets/uovlogo.png")}
-            style={styles.image}
-          />
-        </View>
-        <View style={styles.container}>
-          <Text style={styles.loginText}>Student Login</Text>
-          <Divider />
-        </View>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      style={styles.view}
+    >
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <View style={styles.body}>
+          <Image source={require("../assets/logo.png")} style={styles.image} />
 
-        <View style={styles.formcontainer}>
-          <TextInput label="Username" mode="outlined" onChangeText={setName} />
-          <TextInput
-            label="Password"
-            mode="outlined"
-            secureTextEntry
-            onChangeText={setPassword}
-          />
-          <View style={styles.buttoncontainer}>
-            <Button mode="contained" onPress={handlebutton}>
-              Login
-            </Button>
+          <View style={styles.container}>
+            <Text style={styles.h1}>Student Login</Text>
+
+            <View style={styles.form}>
+              <TextInput
+                mode="outlined"
+                label="Username"
+                placeholder="Enter your username"
+                style={styles.form.input}
+                value={data.username}
+                onChangeText={(text) => setData({ ...data, username: text })}
+              />
+              <TextInput
+                mode="outlined"
+                label="Password"
+                placeholder="Enter your password"
+                style={styles.form.input}
+                value={data.password}
+                onChangeText={(text) => setData({ ...data, password: text })}
+                right={
+                  <TextInput.Icon
+                    icon="eye"
+                    onPress={() => setIsSecure(!isSecure)}
+                  />
+                }
+                secureTextEntry={isSecure}
+              />
+
+              <Button
+                mode="contained"
+                style={styles.button}
+                onPress={handleLogin}
+              >
+                Login
+              </Button>
+            </View>
+
+            {error && (
+              <View style={styles.error}>
+                <Icon source="alert-circle" size={20} style={styles.icon} />
+                <Text>{error}</Text>
+              </View>
+            )}
+          </View>
+
+          <View style={styles.footer}>
+            <Text style={styles.footer.text}>&copy; 2025 UoV Student Care</Text>
           </View>
         </View>
-      </ScrollView>
-    </PaperProvider>
+      </TouchableWithoutFeedback>
+    </KeyboardAvoidingView>
   );
-}
+};
+
+export default Login;
 
 const styles = StyleSheet.create({
-  container: { alignItems: "center" },
-  header: {
-    width: "100%",
-    height: 100,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#8b008b",
+  view: {
+    flex: 1,
   },
-  headerText: {
-    fontSize: 24,
+  body: {
+    flex: 1,
+    backgroundColor: "#fff",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  container: {
+    flexGrow: 1,
+    padding: 20,
+    width: "100%",
+  },
+  footer: {
+    backgroundColor: "#4b0150",
+    width: "100%",
     color: "#fff",
-    backgroundColor: "#8b008b",
+    padding: 20,
+    text: {
+      color: "#fff",
+      textAlign: "center",
+    },
+  },
+  form: {
+    marginTop: 20,
+    input: {
+      width: "100%",
+    },
+  },
+  h1: {
+    fontSize: 28,
     fontWeight: "bold",
+    textAlign: "center",
   },
   image: {
-    width: "60%",
+    marginTop: 20,
+    width: "100%",
     height: 100,
     resizeMode: "contain",
-    marginTop: 5,
   },
-  imagecontain: { alignItems: "center" },
-  loginText: {
-    fontSize: 40,
-    fontWeight: "bold",
-  },
-  formcontainer: {
-    paddingHorizontal: 20,
+  button: {
+    backgroundColor: "#4b0150",
     marginTop: 20,
   },
-  buttoncontainer: {
-    paddingTop: 20,
+  error: {
+    marginTop: 20,
+    padding: 10,
+    backgroundColor: "#f4edf7",
+    borderRadius: 5,
+    flexDirection: "row",
+    gap: 6,
   },
 });

@@ -3,7 +3,7 @@ import { Image, StyleSheet, Text, View } from "react-native";
 import { Avatar, Card } from "react-native-paper";
 import { courses } from "../assets/StudentsDb";
 
-const Subjects = ({ student }) => {
+const Courses = ({ student }) => {
   const course = courses.find((c) => c.id === student.course_id);
 
   return (
@@ -38,7 +38,7 @@ const Subjects = ({ student }) => {
   );
 };
 
-export default Subjects;
+export default Courses;
 
 const styles = StyleSheet.create({
   view: {

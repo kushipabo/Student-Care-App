@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { BottomNavigation, Text } from "react-native-paper";
 import Profile from "./Profile";
-import Courses from "./Course";
+import Courses from "./Courses";
 import Subjects from "./Subjects";
 
 const Home = ({ route }) => {
